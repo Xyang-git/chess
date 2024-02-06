@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class ReadImageFromFile {
 //    public static Image
@@ -37,6 +39,8 @@ public class ReadImageFromFile {
 
     public Image readPieceFromFile(ChessPiece chessPiece){
         try {
+            String imageResource = chessPiece + ".png";
+            Image image = ImageIO.read(getClass().getResourceAsStream(imageResource));
             File file = new File("piece_images/" + chessPiece + ".png");
             //            Image output = piece.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
 //            BufferedImage bufferedImage = new BufferedImage(100,100,BufferedImage.TYPE_4BYTE_ABGR);
@@ -44,7 +48,8 @@ public class ReadImageFromFile {
 //            g.drawImage(output, 0, 0,null);
 //            g.dispose();
 //            ImageIO.write( bufferedImage, "png", file);
-            return ImageIO.read(file);
+            //return ImageIO.read(file);
+            return image;
         } catch (IOException e) {
             System.out.println("Fail to read image from file, Error: " + e);
             return null;
