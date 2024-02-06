@@ -1,0 +1,205 @@
+import java.util.ArrayList;
+
+public class ValidMove{
+
+    public boolean isValidMove(PiecePos piece, int row, int column, ArrayList<PiecePos> chessBoard){
+        boolean validMove = false;
+        for (int a : nextValidMoves(piece, chessBoard)){
+            if (row == a/10 && column == a%10){
+                validMove = true;
+                break;
+            }
+        }
+        return validMove;
+    }
+
+    // Check next valid move for the given piece and return a list of compressed integer (row*10 + column)
+    public ArrayList<Integer> nextValidMoves(PiecePos piecePos, ArrayList<PiecePos> chessBoard){
+        return switch (piecePos.chessPiece()) {
+            case Pawn_black -> pawnBlackNextValidMoves(piecePos, chessBoard);
+            case Pawn_white -> pawnWhiteNextValidMoves(piecePos, chessBoard);
+            case Bishop_black, Bishop_white -> bishopNextValidMoves(piecePos, chessBoard);
+            case King_black, King_white -> kingNextValidMoves(piecePos, chessBoard);
+            case Knight_black, Knight_white -> knightNextValidMoves(piecePos, chessBoard);
+            case Queen_black, Queen_white -> queenNextValidMoves(piecePos, chessBoard);
+            case Rook_black, Rook_white -> rookNextValidMoves(piecePos, chessBoard);
+        };
+    }
+
+    private ArrayList<Integer> pawnBlackNextValidMoves (PiecePos piecePos, ArrayList<PiecePos> chessBoard){
+        ArrayList<Integer> result = new ArrayList<>();
+        if (!piecePos.hasMoved()){
+            if (!ifPathBlockedStraight(piecePos, piecePos.row()+2, piecePos.column(), chessBoard)){
+                result.add((piecePos.row()+2)*10+piecePos.column());
+            }
+        }
+        if (!ifPathBlockedStraight(piecePos, piecePos.row()+1, piecePos.column(), chessBoard)) {
+            result.add((piecePos.row()+1)*10+piecePos.column());
+        }
+        return result;
+    }
+
+    private ArrayList<Integer> pawnWhiteNextValidMoves (PiecePos piecePos, ArrayList<PiecePos> chessBoard){
+        ArrayList<Integer> result = new ArrayList<>();
+        if (!piecePos.hasMoved()){
+            if (!ifPathBlockedStraight(piecePos, piecePos.row()-2, piecePos.column(), chessBoard)){
+                result.add((piecePos.row()-2)*10+piecePos.column());
+            }
+        }
+        if (!ifPathBlockedStraight(piecePos, piecePos.row()-1, piecePos.column(), chessBoard)) {
+            result.add((piecePos.row()-1)*10+piecePos.column());
+        }
+        return result;
+    }
+    private ArrayList<Integer> bishopNextValidMoves (PiecePos piecePos, ArrayList<PiecePos> chessBoard){
+        ArrayList<Integer> result = new ArrayList<>();
+        for (int x=1 ;x < 8; x++){
+            if (isInRange(piecePos.row()+x, 1, 8) && isInRange(piecePos.column()+x, 1,8)
+            && !ifPathBlockedDiagonal(piecePos, piecePos.row()+x, piecePos.column()+x,chessBoard)){
+                result.add((piecePos.row()+x)*10 + piecePos.column()+x);
+            }
+            if (isInRange(piecePos.row()-x, 1, 8) && isInRange(piecePos.column()+x, 1,8)
+                    && !ifPathBlockedDiagonal(piecePos, piecePos.row()-x, piecePos.column()+x, chessBoard)) {
+                result.add((piecePos.row()-x)*10 + piecePos.column()+x);
+            }
+            if (isInRange(piecePos.row()+x, 1, 8) && isInRange(piecePos.column()-x, 1,8)
+                    && !ifPathBlockedDiagonal(piecePos, piecePos.row()+x, piecePos.column()-x, chessBoard)) {
+                result.add((piecePos.row()+x)*10 + piecePos.column()-x);
+            }
+            if (isInRange(piecePos.row()-x, 1, 8) && isInRange(piecePos.column()-x, 1,8)
+                    && !ifPathBlockedDiagonal(piecePos, piecePos.row()-x, piecePos.column()-x, chessBoard)) {
+                result.add((piecePos.row()-x)*10 + piecePos.column()-x);
+            }
+        }
+        return result;
+    }
+
+
+    private ArrayList<Integer> kingNextValidMoves (PiecePos piecePos, ArrayList<PiecePos> chessBoard){
+        ArrayList<Integer> validNextMoves = new ArrayList<>();
+        int[][] possibleNextMovesForKing = {{piecePos.row(),piecePos.column()+1}, {piecePos.row(),piecePos.column()-1}, {(piecePos.row()+1),piecePos.column()},
+            {(piecePos.row()+1),piecePos.column()+1}, {(piecePos.row()+1),piecePos.column()-1}, {(piecePos.row()-1),piecePos.column()},
+            {(piecePos.row()-1),piecePos.column()+1}, {(piecePos.row()-1),piecePos.column()-1}};
+        for (int[] i : possibleNextMovesForKing){
+            if (isInBoard(i[0], i[1])){
+                if(!ifPathBlockedStraight(piecePos, i[0], i[1], chessBoard)
+                        && !ifPathBlockedDiagonal(piecePos, i[0], i[1], chessBoard)
+                        && !ifNextKingPosInAttackRange(piecePos, i[0], i[1], chessBoard)
+                ){
+                    validNextMoves.add(i[0]*10+i[1]);
+                }
+            }
+        }
+        return validNextMoves;
+    }
+
+    private ArrayList<Integer> knightNextValidMoves (PiecePos piecePos, ArrayList<PiecePos> chessBoard){
+        ArrayList<Integer> validNextMoves = new ArrayList<>();
+        int[][] possibleNextMovesForKnight = {{piecePos.row()+2,piecePos.column()+1}, {piecePos.row()+2,piecePos.column()-1}, {(piecePos.row()+1),piecePos.column()+2},
+                {(piecePos.row()+1),piecePos.column()-2}, {(piecePos.row()-1),piecePos.column()-2}, {(piecePos.row()-1),piecePos.column()+2},
+                {(piecePos.row()-2),piecePos.column()+1}, {(piecePos.row()-2),piecePos.column()-1}};
+        for (int[] i : possibleNextMovesForKnight){
+            if (isInBoard(i[0], i[1])){
+                boolean ifPieceBlocked = false;
+                for(PiecePos pos : chessBoard){
+                    if (pos.row()==i[0] && pos.column()==i[1]){
+                        ifPieceBlocked = true;
+                    }
+                }
+                if (!ifPieceBlocked){
+                    validNextMoves.add(i[0]*10+i[1]);
+                }
+            }
+        }
+        return validNextMoves;
+    }
+
+    private ArrayList<Integer> queenNextValidMoves (PiecePos piecePos, ArrayList<PiecePos> chessboard){
+        ArrayList<Integer> result = rookNextValidMoves(piecePos, chessboard);
+        result.addAll(bishopNextValidMoves(piecePos, chessboard));
+        return result;
+    }
+    private ArrayList<Integer> rookNextValidMoves (PiecePos piecePos, ArrayList<PiecePos> chessboard){
+        ArrayList<Integer> validNextMoves = new ArrayList<>();
+        for (int x = 1; x <= 8; x++){
+            if (!ifPathBlockedStraight(piecePos, piecePos.row(), x, chessboard) && x != piecePos.column()){
+                validNextMoves.add(piecePos.row()*10 + x);
+            }
+            if (!ifPathBlockedStraight(piecePos, x, piecePos.column(), chessboard) && x != piecePos.row()){
+                validNextMoves.add(x*10 + piecePos.column());
+            }
+        }
+        return validNextMoves;
+    }
+
+    private boolean ifPathBlockedStraight (PiecePos piecePos, int row, int column, ArrayList<PiecePos> chessBoard){
+        boolean isBlocked = false;
+        for (PiecePos pos : chessBoard){
+            if(!pos.equals(piecePos)){
+                if (row == piecePos.row() && row == pos.row() && isInRange(pos.column(), column, piecePos.column())){
+                    isBlocked = true;
+                    break;
+                } else if (column == piecePos.column() && column == pos.column() && isInRange(pos.row(), row, piecePos.row())) {
+                    isBlocked = true;
+                    break;
+                }
+            }
+        }
+        return isBlocked;
+    }
+    private boolean ifPathBlockedDiagonal (PiecePos piecePos, int row, int column, ArrayList<PiecePos> chessBoard){
+        boolean isBlocked = false;
+        for (PiecePos pos : chessBoard){
+            if(!pos.equals(piecePos)){
+                if (isInRange(pos.row(), piecePos.row(), row)
+                        && isInRange(pos.column(), piecePos.column(), column)
+                        && Math.abs(pos.row()-row) == Math.abs(pos.column()-column)){
+                    isBlocked = true;
+                    break;
+                }
+            }
+        }
+        return isBlocked;
+    }
+    private boolean ifNextKingPosInAttackRange (PiecePos piecePos, int row, int column, ArrayList<PiecePos> chessboard){
+        chessboard.remove(piecePos);
+        PiecePos newKingPos = new PiecePos(piecePos.chessPiece(), row, column, true);
+        chessboard.add(newKingPos);
+        boolean result = false;
+        for (PiecePos pos : chessboard){
+            if (pos.chessPiece().isWhitePiece(pos.chessPiece()) != piecePos.chessPiece().isWhitePiece(piecePos.chessPiece())){
+                if ((pos.chessPiece() == ChessPiece.King_black || pos.chessPiece() == ChessPiece.King_white)){
+                    if (isInRange(row, pos.row()+1, pos.row()-1)
+                            && isInRange(column, pos.column()-1, pos.column()+1)){
+                        result = true;
+                        break;
+                    }
+                }else{
+                    ValidAttack validAttack = new ValidAttack();
+                    if (validAttack.isValidAttack(pos, row, column, chessboard)){
+                        result = true;
+                        break;
+                    }
+                }
+            }
+        }
+        chessboard.remove(newKingPos);
+        chessboard.add(piecePos);
+        return result;
+    }
+
+    private Boolean isInBoard (int row, int column){
+        return row >= 1 && row <= 8 && column >= 1 && column <= 8;
+    }
+
+
+    private boolean isInRange (int i, int limit1, int limit2) {
+        int low = Math.min(limit1, limit2);
+        int high = Math.max(limit1, limit2);
+        if (i <= high && i >= low) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
