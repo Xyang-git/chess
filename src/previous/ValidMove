@@ -1,3 +1,5 @@
+import Pieces.PieceType;
+
 import java.util.ArrayList;
 
 public class ValidMove{
@@ -15,7 +17,7 @@ public class ValidMove{
 
     // Check next valid move for the given piece and return a list of compressed integer (row*10 + column)
     public ArrayList<Integer> nextValidMoves(PiecePos piecePos, ArrayList<PiecePos> chessBoard){
-        return switch (piecePos.chessPiece()) {
+        return switch (piecePos.pieceType()) {
             case Pawn_black -> pawnBlackNextValidMoves(piecePos, chessBoard);
             case Pawn_white -> pawnWhiteNextValidMoves(piecePos, chessBoard);
             case Bishop_black, Bishop_white -> bishopNextValidMoves(piecePos, chessBoard);
@@ -51,8 +53,10 @@ public class ValidMove{
         }
         return result;
     }
+    // TODO: Every method in this class could be more readable.
     private ArrayList<Integer> bishopNextValidMoves (PiecePos piecePos, ArrayList<PiecePos> chessBoard){
         ArrayList<Integer> result = new ArrayList<>();
+        // TODO: This could be more readable
         for (int x=1 ;x < 8; x++){
             if (isInRange(piecePos.row()+x, 1, 8) && isInRange(piecePos.column()+x, 1,8)
             && !ifPathBlockedDiagonal(piecePos, piecePos.row()+x, piecePos.column()+x,chessBoard)){
@@ -163,12 +167,12 @@ public class ValidMove{
     }
     private boolean ifNextKingPosInAttackRange (PiecePos piecePos, int row, int column, ArrayList<PiecePos> chessboard){
         chessboard.remove(piecePos);
-        PiecePos newKingPos = new PiecePos(piecePos.chessPiece(), row, column, true);
+        PiecePos newKingPos = new PiecePos(piecePos.pieceType(), row, column, true);
         chessboard.add(newKingPos);
         boolean result = false;
         for (PiecePos pos : chessboard){
-            if (pos.chessPiece().isWhitePiece(pos.chessPiece()) != piecePos.chessPiece().isWhitePiece(piecePos.chessPiece())){
-                if ((pos.chessPiece() == ChessPiece.King_black || pos.chessPiece() == ChessPiece.King_white)){
+            if (pos.pieceType().isWhitePiece(pos.pieceType()) != piecePos.pieceType().isWhitePiece(piecePos.pieceType())){
+                if ((pos.pieceType() == PieceType.King_black || pos.pieceType() == PieceType.King_white)){
                     if (isInRange(row, pos.row()+1, pos.row()-1)
                             && isInRange(column, pos.column()-1, pos.column()+1)){
                         result = true;

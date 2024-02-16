@@ -1,3 +1,9 @@
+package GameScreens;
+
+import ChessBoard.*;
+import PieceImageCache.RenderPieceImageCacheService;
+import Pieces.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -6,14 +12,14 @@ import java.awt.event.KeyListener;
 
 public class MyChessGame extends JPanel {
     // You can define any variables you like here:
-    private PiecePos selectedPiece = null;
-    private int[] selectedSpace = new int[]{7,4};
-    private int[][] previousMove;
-    ChessBoard chessBoard = new ChessBoard();
-    ValidMove validMove = new ValidMove();
-    ValidAttack validAttack = new ValidAttack();
+    private ChessPiece selectedPiece = null;
+    private final int pieceSize = 100;
+    private Coordinate selectedSpace = new Coordinate(7,4);
+    private Coordinate[] previousMove;
     private boolean white_turn = true;
     private String warnings;
+    Board board = new Board();
+    RenderPieceImageCacheService renderImage = new RenderPieceImageCacheService();
 
     public MyChessGame() {
         // This is the constructor, put code in here that you want to run exactly once.;
@@ -26,38 +32,38 @@ public class MyChessGame extends JPanel {
             public void keyTyped(KeyEvent e) {
                 // You can add any logic you like in here.
                 char charPressed = e.getKeyChar();
-                if (!chessBoard.blackWins() && !chessBoard.whiteWins() && !chessBoard.isStaleMate(white_turn)){
+                if (!board.blackWins() && !board.whiteWins() && !board.isStaleMate(white_turn)){
                     switch (charPressed){
                         case 'w':
-                            if (selectedSpace[0] > 1) {
-                                selectedSpace[0] -= 1;
+                            if (selectedSpace.row > 1) {
+                                selectedSpace.row -= 1;
                             }
                             break;
                         case 's':
-                            if (selectedSpace[0] < 8){
-                                selectedSpace[0] += 1;
+                            if (selectedSpace.row < 8){
+                                selectedSpace.row += 1;
                             }
                             break;
                         case 'a':
-                            if (selectedSpace[1] > 1) {
-                                selectedSpace[1] -= 1;
+                            if (selectedSpace.column > 1) {
+                                selectedSpace.column -= 1;
                             }
                             break;
                         case 'd':
-                            if (selectedSpace[1] < 8){
-                                selectedSpace[1] += 1;
+                            if (selectedSpace.column < 8){
+                                selectedSpace.column += 1;
                             }
                             break;
                         // Key Space is used to select a piece or place a selected piece to a new position
                         case ' ':
                             // If no piece is currently selected
                             if (selectedPiece == null &&
-                                    chessBoard.findPiecePosAtPosition(selectedSpace[0],selectedSpace[1]) != null){
-                                PiecePos piece = chessBoard.findPiecePosAtPosition(selectedSpace[0], selectedSpace[1]);
-                                if (piece.chessPiece().isWhitePiece(piece.chessPiece()) != white_turn){
+                                    board.findPiecePosAtPosition(selectedSpace) != null){
+                                ChessPiece piece = board.findPiecePosAtPosition(selectedSpace);
+                                if (piece.isWhite != white_turn){
                                     warnings = "Please select your own piece!";
-                                }else if (validMove.nextValidMoves(piece, chessBoard.showBoard()).isEmpty()
-                                        && validAttack.nextValidAttacks(piece, chessBoard.showBoard()).isEmpty()){
+                                }else if (piece.getValidMoves(board.showBoard()).isEmpty()
+                                        && piece.getValidAttacks(board.showBoard()).isEmpty()){
                                     warnings = "There is no valid moves or attacks for the selected piece, please select again!";
                                 }
                                 else{
@@ -67,27 +73,26 @@ public class MyChessGame extends JPanel {
                             // If there is a piece is selected by player
                             else if (selectedPiece != null){
                                 // Deselect current piece
-                                if (selectedPiece.row() == selectedSpace[0] && selectedPiece.column() == selectedSpace[1]){
+                                if (selectedPiece.coordinate.equals(selectedSpace)){
                                     selectedPiece = null;
                                 }
                                 // Selected space is not accessible by current piece
-                                else if (!validMove.isValidMove(selectedPiece, selectedSpace[0], selectedSpace[1], chessBoard.showBoard())
-                                        && !validAttack.isValidAttack(selectedPiece, selectedSpace[0], selectedSpace[1], chessBoard.showBoard())) {
+                                else if (!selectedPiece.isValidMove(selectedSpace, board.showBoard())
+                                        && !selectedPiece.isValidAttack(selectedSpace, board.showBoard())) {
                                     warnings = "Invalid move, please choose again!";
                                 }
                                 // Attack
-                                else if(validAttack.isValidAttack(selectedPiece, selectedSpace[0], selectedSpace[1], chessBoard.showBoard())) {
-                                    chessBoard.updateBoardAfterAttack(selectedSpace[0], selectedSpace[1], selectedPiece,
-                                            new PiecePos(selectedPiece.chessPiece(), selectedSpace[0], selectedSpace[1], true));
+                                else if(selectedPiece.isValidAttack(selectedSpace, board.showBoard())) {
+                                    board.updateBoardAfterAttack(selectedPiece, selectedSpace);
                                     white_turn = !white_turn;
-                                    previousMove = new int[][]{{selectedPiece.row(),selectedPiece.column()}, {selectedSpace[0], selectedSpace[1]}};
+                                    previousMove = new Coordinate[]{selectedPiece.coordinate, selectedSpace};
                                     selectedPiece = null;
                                 }
                                 // Move
                                 else{
-                                    chessBoard.updateBoard(selectedPiece, new PiecePos(selectedPiece.chessPiece(), selectedSpace[0], selectedSpace[1], true));
+                                    board.updateBoard(selectedPiece, selectedSpace);
                                     white_turn = !white_turn;
-                                    previousMove = new int[][]{{selectedPiece.row(),selectedPiece.column()}, {selectedSpace[0], selectedSpace[1]}};
+                                    previousMove = new Coordinate[]{selectedPiece.coordinate, selectedSpace};
                                     selectedPiece = null;
                                 }
                             }
@@ -101,7 +106,17 @@ public class MyChessGame extends JPanel {
 
 
 
+    // TODO: Make some transform function to avoid all teh multiplying by 100.
     // All rendering goes in here.
+    public void drawSquareOnBoard(Graphics g, Coordinate coords, Color colour, int width, int height, int stroke){
+        // TODO: Would also handle the size of the piece. (100 by 100)
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(stroke));
+        g2.setColor(colour);
+        g2.drawRect(coords.row*pieceSize-stroke+2, coords.column*pieceSize-stroke+2,
+                width*pieceSize+2*(stroke-2), height*pieceSize+2*(stroke-2));
+        g2.setStroke(new BasicStroke(2));
+    }
     @Override
     public void paintComponent(Graphics g) {
         // This will clear the screen.
@@ -112,44 +127,38 @@ public class MyChessGame extends JPanel {
         // Render some text.
         g.drawString("Pawninator 5000", 10, 20);
         //Draw boarder of the chess board
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setStroke(new BasicStroke(4));
-        g2.setColor(Color.BLACK);
-        g2.drawRect(98,98,804,804);
-        g2.setStroke(new BasicStroke(2));
-
+        drawSquareOnBoard(g,new Coordinate(1,1),Color.BLACK, 8,8,4);
         // Draw the chess board background
         g.setColor(Color.LIGHT_GRAY);
         for (int x = 1; x <= 8; x++) {
             for (int y = 1; y <= 8; y++) {
                 if ((x + y) % 2 == 1) {
-                    g.fillRect(x * 100, y * 100, 100, 100);
+                    g.fillRect(x * pieceSize, y * pieceSize, pieceSize, pieceSize);
                 }
             }
         }
         g.setColor(Color.orange);
         // Draw a rectangle at a position along the screen depending on how many Ws were pressed.
-        g.fillRect(selectedSpace[1]*100, selectedSpace[0]*100, 100, 100);
+        g.fillRect(selectedSpace.column*pieceSize, selectedSpace.row*pieceSize, pieceSize, pieceSize);
         // Show the previous move by player
         if (previousMove != null){
-            g.setColor(Color.YELLOW);
-            // Draw a rectangle at a position along the screen depending on how many Ws were pressed.
-            g.drawRect(previousMove[0][1]*100, previousMove[0][0]*100, 100, 100);
-            g.drawRect(previousMove[1][1]*100, previousMove[1][0]*100, 100, 100);
+            for(Coordinate coordinate : previousMove){
+                drawSquareOnBoard(g, coordinate, Color.YELLOW, 1,1,2);
+            }
         }
 
         // Show possible positions for the selected piece to move
         g.setColor(Color.GREEN);
         if (selectedPiece != null){
-            for (int i : validMove.nextValidMoves(selectedPiece, chessBoard.showBoard())){
-                g.drawRoundRect(i%10*100,i/10*100, 100, 100, 40, 40);
+            for (Coordinate c : selectedPiece.getValidMoves(board.showBoard())){
+                g.drawRoundRect(c.row*100,c.column*100, 100, 100, 40, 40);
             }
         }
         // Show possible positions for the selected piece to attack
         g.setColor(Color.RED);
         if (selectedPiece != null){
-            for (int i : validAttack.nextValidAttacks(selectedPiece, chessBoard.showBoard())){
-                g.drawRoundRect(i%10*100,i/10*100, 100, 100, 40, 40);
+            for (Coordinate c : selectedPiece.getValidAttacks(board.showBoard())){
+                g.drawRoundRect(c.row*100,c.column*100, 100, 100, 40, 40);
             }
         }
 
@@ -167,24 +176,24 @@ public class MyChessGame extends JPanel {
 
         // Resets the colour to something else.
         // Draw all the chess pieces on board
-        ReadImageFromFile read = new ReadImageFromFile();
-        for (PiecePos piecePos : chessBoard.showBoard()){
-            g.drawImage(read.readPieceFromFile(piecePos.chessPiece()),
-                    piecePos.column() * 100,
-                    piecePos.row() * 100,
+        // TODO: Actaulyl save the cache somewhere, so we remember the data we've loaded. (e.g. as a member at the top of this class)
+        for (ChessPiece piece : board.showBoard()){
+            g.drawImage(piece.GetRenderImage(renderImage),
+                    piece.coordinate.column * 100,
+                    piece.coordinate.row * 100,
                     null);
         }
 
         g.setColor(Color.red);
         Font font = new Font("Snell Roundhand", Font.BOLD, 100);
         g.setFont(font);
-        if (chessBoard.whiteWins()){
+        if (board.whiteWins()){
             g.drawString("White Wins!", 250, 500);
         }
-        if (chessBoard.blackWins()){
+        if (board.blackWins()){
             g.drawString("Black Wins!", 250, 500);
         }
-        if (chessBoard.isStaleMate(white_turn)){
+        if (board.isStaleMate(white_turn)){
             g.drawString("Stalemate!", 250, 500);
         }
 //        // Some fancy-ish graphics : ] (that'll only refresh on keypress) (need all the double / float casting for silly floating point precision reasons)

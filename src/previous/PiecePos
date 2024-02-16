@@ -1,0 +1,4 @@
+import Pieces.PieceType;
+
+public record PiecePos(PieceType pieceType, int row, int column, boolean hasMoved) {
+}

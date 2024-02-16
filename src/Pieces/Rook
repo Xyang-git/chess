@@ -1,0 +1,43 @@
+package Pieces;
+
+import ChessBoard.Coordinate;
+import PieceImageCache.RenderPieceImageCacheService;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Rook extends ChessPiece {
+
+    public Rook(Coordinate coordinate, boolean isWhite, boolean hasEverMoved) {
+        super(coordinate, isWhite, hasEverMoved);
+    }
+
+    @Override
+    public ArrayList<Coordinate> getValidMoves(ArrayList<ChessPiece> chessBoard){
+        ArrayList<Coordinate> validNextMoves = new ArrayList<>();
+        for (int x = 1; x <= 8; x++){
+            if (ifPathNotBlockedStraight(new Coordinate(coordinate.row, x), chessBoard) && x != coordinate.column){
+                validNextMoves.add(new Coordinate(coordinate.row, x));
+            }
+            if (ifPathNotBlockedStraight(new Coordinate(x, coordinate.column), chessBoard) && x != coordinate.row){
+                validNextMoves.add(new Coordinate(x, coordinate.column));
+            }
+        }
+        return validNextMoves;
+    }
+
+    @Override
+    public List<Coordinate> getValidAttacks(ArrayList<ChessPiece> chessBoard) {
+        return null;
+    }
+
+    @Override
+    public Image GetRenderImage(RenderPieceImageCacheService renderPieceImageCacheService) {
+        if (this.isWhite){
+            return renderPieceImageCacheService.getImage("Rook_white");
+        }else{
+            return renderPieceImageCacheService.getImage("Rook_black");
+        }
+    }
+}

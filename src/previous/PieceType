@@ -1,0 +1,27 @@
+package Pieces;
+
+public enum PieceType {
+    // TODO: Store colour as boolean, not enum variant. (half the number of variants)
+    Bishop_black,
+    Bishop_white,
+    King_black,
+    King_white,
+    Knight_black,
+    Knight_white,
+    Pawn_black,
+    Pawn_white,
+    Queen_black,
+    Queen_white,
+    Rook_black,
+    Rook_white;
+
+    public boolean isWhitePiece(PieceType pieceType){
+        return (pieceType == Bishop_white || pieceType == King_white ||
+                pieceType == Knight_white || pieceType == Pawn_white ||
+                pieceType == Queen_white || pieceType == Rook_white);
+    }
+
+    public boolean isOpponent(PieceType selectedPiece, PieceType piece){
+        return isWhitePiece(selectedPiece) != isWhitePiece(piece);
+    }
+}

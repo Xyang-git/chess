@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 
+// TODO: Can call this a service, because has no members.
 public class ValidAttack {
 
     //private ValidMove validMove = new ValidMove();
@@ -17,7 +18,7 @@ public class ValidAttack {
     }
 
     public ArrayList<Integer> nextValidAttacks(PiecePos piecePos, ArrayList<PiecePos> chessBoard){
-        return switch (piecePos.chessPiece()) {
+        return switch (piecePos.pieceType()) {
             case Pawn_black -> pawnBlackNextValidAttacks(piecePos, chessBoard);
             case Pawn_white -> pawnWhiteNextValidAttacks(piecePos, chessBoard);
             case Bishop_black, Bishop_white -> bishopNextValidAttacks(piecePos, chessBoard);
@@ -52,7 +53,7 @@ public class ValidAttack {
         ArrayList<Integer> result = new ArrayList<>();
         for (PiecePos pos : chessBoard){
             if (Math.abs(pos.row()-piecePos.row()) == Math.abs(pos.column()-piecePos.column())
-                    && piecePos.chessPiece().isWhitePiece(piecePos.chessPiece()) != pos.chessPiece().isWhitePiece(pos.chessPiece())
+                    && piecePos.pieceType().isWhitePiece(piecePos.pieceType()) != pos.pieceType().isWhitePiece(pos.pieceType())
                     && !ifPathBlockedDiagonalAttack(piecePos, pos.row(), pos.column(), chessBoard)){
                 result.add(pos.row()*10+pos.column());
             }
@@ -111,9 +112,9 @@ public class ValidAttack {
 
 
     private boolean ifOpponentPieceInRange(int row, int column, PiecePos piecePos, ArrayList<PiecePos> chessBoard){
-        Boolean result = false;
+        boolean result = false;
         for (PiecePos pos : chessBoard){
-            if(piecePos.chessPiece().isWhitePiece(piecePos.chessPiece()) != pos.chessPiece().isWhitePiece(pos.chessPiece())){
+            if(piecePos.pieceType().isWhitePiece(piecePos.pieceType()) != pos.pieceType().isWhitePiece(pos.pieceType())){
                 if(pos.row() == row && pos.column() == column){
                     result = true;
                     break;
@@ -123,6 +124,7 @@ public class ValidAttack {
         return result;
     }
 
+    // TODO: move to chess board.
     private boolean ifPathBlockedStraightAttack (PiecePos piecePos, int row, int column, ArrayList<PiecePos> chessBoard){
         boolean isBlocked = false;
         for (PiecePos pos : chessBoard){
@@ -182,11 +184,7 @@ public class ValidAttack {
     private boolean isInRange (int i, int limit1, int limit2) {
         int low = Math.min(limit1, limit2);
         int high = Math.max(limit1, limit2);
-        if (i <= high && i >= low) {
-            return true;
-        } else {
-            return false;
-        }
+        return i <= high && i >= low;
     }
 
 }
