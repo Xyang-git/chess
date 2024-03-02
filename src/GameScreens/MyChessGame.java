@@ -58,12 +58,12 @@ public class MyChessGame extends JPanel {
                         case ' ':
                             // If no piece is currently selected
                             if (selectedPiece == null &&
-                                    board.findPiecePosAtPosition(selectedSpace) != null){
-                                ChessPiece piece = board.findPiecePosAtPosition(selectedSpace);
+                                    board.findPieceAtPosition(selectedSpace) != null){
+                                ChessPiece piece = board.findPieceAtPosition(selectedSpace);
                                 if (piece.isWhite != white_turn){
                                     warnings = "Please select your own piece!";
                                 }else if (piece.getValidMoves(board.showBoard()).isEmpty()
-                                        && piece.getValidAttacks(board.showBoard()).isEmpty()){
+                                        && piece.getValidAttacks(board).isEmpty()){
                                     warnings = "There is no valid moves or attacks for the selected piece, please select again!";
                                 }
                                 else{
@@ -73,16 +73,16 @@ public class MyChessGame extends JPanel {
                             // If there is a piece is selected by player
                             else if (selectedPiece != null){
                                 // Deselect current piece
-                                if (selectedPiece.coordinate.equals(selectedSpace)){
+                                if (selectedPiece.coordinate.equal(selectedSpace)){
                                     selectedPiece = null;
                                 }
                                 // Selected space is not accessible by current piece
                                 else if (!selectedPiece.isValidMove(selectedSpace, board.showBoard())
-                                        && !selectedPiece.isValidAttack(selectedSpace, board.showBoard())) {
+                                        && !selectedPiece.isValidAttack(selectedSpace, board)) {
                                     warnings = "Invalid move, please choose again!";
                                 }
                                 // Attack
-                                else if(selectedPiece.isValidAttack(selectedSpace, board.showBoard())) {
+                                else if(selectedPiece.isValidAttack(selectedSpace, board)) {
                                     board.updateBoardAfterAttack(selectedPiece, selectedSpace);
                                     white_turn = !white_turn;
                                     previousMove = new Coordinate[]{selectedPiece.coordinate, selectedSpace};
@@ -113,7 +113,7 @@ public class MyChessGame extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(stroke));
         g2.setColor(colour);
-        g2.drawRect(coords.row*pieceSize-stroke+2, coords.column*pieceSize-stroke+2,
+        g2.drawRect( coords.column*pieceSize-stroke+2, coords.row*pieceSize-stroke+2,
                 width*pieceSize+2*(stroke-2), height*pieceSize+2*(stroke-2));
         g2.setStroke(new BasicStroke(2));
     }
@@ -151,14 +151,14 @@ public class MyChessGame extends JPanel {
         g.setColor(Color.GREEN);
         if (selectedPiece != null){
             for (Coordinate c : selectedPiece.getValidMoves(board.showBoard())){
-                g.drawRoundRect(c.row*100,c.column*100, 100, 100, 40, 40);
+                g.drawRoundRect(c.column*pieceSize,c.row*pieceSize, pieceSize, pieceSize, 40, 40);
             }
         }
         // Show possible positions for the selected piece to attack
         g.setColor(Color.RED);
-        if (selectedPiece != null){
-            for (Coordinate c : selectedPiece.getValidAttacks(board.showBoard())){
-                g.drawRoundRect(c.row*100,c.column*100, 100, 100, 40, 40);
+        if (selectedPiece != null ){
+            for (Coordinate c : selectedPiece.getValidAttacks(board)){
+                g.drawRoundRect(c.column*pieceSize,c.row*pieceSize, pieceSize, pieceSize, 40, 40);
             }
         }
 
@@ -179,8 +179,8 @@ public class MyChessGame extends JPanel {
         // TODO: Actaulyl save the cache somewhere, so we remember the data we've loaded. (e.g. as a member at the top of this class)
         for (ChessPiece piece : board.showBoard()){
             g.drawImage(piece.GetRenderImage(renderImage),
-                    piece.coordinate.column * 100,
-                    piece.coordinate.row * 100,
+                    piece.coordinate.column * pieceSize,
+                    piece.coordinate.row * pieceSize,
                     null);
         }
 

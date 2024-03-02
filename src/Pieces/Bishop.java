@@ -1,5 +1,6 @@
 package Pieces;
 
+import ChessBoard.Board;
 import ChessBoard.Coordinate;
 import PieceImageCache.RenderPieceImageCacheService;
 
@@ -19,19 +20,19 @@ public class Bishop extends ChessPiece {
         // TODO: This could be more readable
         for (int x=1 ;x < 8; x++){
             if (isInRange(coordinate.row+x, 1, 8) && isInRange(coordinate.column+x, 1,8)
-                    && !ifPathBlockedDiagonal(coordinate.add(new Coordinate(x,x)),chessBoard)){
+                    && ifPathNotBlockedDiagonal(coordinate.add(new Coordinate(x, x)), chessBoard)){
                 result.add(coordinate.add(new Coordinate(x,x)));
             }
             if (isInRange(coordinate.row-x, 1, 8) && isInRange(coordinate.column+x, 1,8)
-                    && !ifPathBlockedDiagonal(coordinate.add(new Coordinate(-x,x)),chessBoard)){
+                    && ifPathNotBlockedDiagonal(coordinate.add(new Coordinate(-x, x)), chessBoard)){
                 result.add(coordinate.add(new Coordinate(-x,x)));
             }
             if (isInRange(coordinate.row+x, 1, 8) && isInRange(coordinate.column-x, 1,8)
-                    && !ifPathBlockedDiagonal(coordinate.add(new Coordinate(x,-x)),chessBoard)) {
+                    && ifPathNotBlockedDiagonal(coordinate.add(new Coordinate(x, -x)), chessBoard)) {
                 result.add(coordinate.add(new Coordinate(x, -x)));
             }
             if (isInRange(coordinate.row-x, 1, 8) && isInRange(coordinate.column-x, 1,8)
-                    && !ifPathBlockedDiagonal(coordinate.add(new Coordinate(-x,-x)),chessBoard)) {
+                    && ifPathNotBlockedDiagonal(coordinate.add(new Coordinate(-x, -x)), chessBoard)) {
                 result.add(coordinate.add(new Coordinate(-x, -x)));
             }
         }
@@ -39,8 +40,16 @@ public class Bishop extends ChessPiece {
     }
 
     @Override
-    public List<Coordinate> getValidAttacks(ArrayList<ChessPiece> chessBoard) {
-        return null;
+    public ArrayList<Coordinate> getValidAttacks(Board chessBoard) {
+        ArrayList<Coordinate> result = new ArrayList<>();
+        for (ChessPiece pieceOnBoard : chessBoard.showBoard()){
+            if (Math.abs(coordinate.row-pieceOnBoard.coordinate.row) == Math.abs(coordinate.column-pieceOnBoard.coordinate.column)
+                    && pieceOnBoard.isWhite != isWhite
+                    && !ifPathBlockedDiagonalAttack(pieceOnBoard.coordinate, chessBoard.showBoard())){
+                result.add(pieceOnBoard.coordinate);
+            }
+        }
+        return result;
     }
 
     @Override

@@ -1,11 +1,14 @@
 package PieceImageCache;
 
 import Pieces.ChessPiece;
+import com.sun.tools.javac.Main;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
+
+import static java.lang.ClassLoader.*;
 
 
 public class RenderPieceImageCacheService {

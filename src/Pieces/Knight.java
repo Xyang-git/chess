@@ -1,5 +1,6 @@
 package Pieces;
 
+import ChessBoard.Board;
 import ChessBoard.Coordinate;
 import PieceImageCache.RenderPieceImageCacheService;
 
@@ -8,14 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Knight extends ChessPiece {
+
     public Knight(Coordinate coordinate, boolean isWhite, boolean hasEverMoved) {
         super(coordinate, isWhite, hasEverMoved);
     }
 
-    @Override
-    public ArrayList<Coordinate> getValidMoves(ArrayList<ChessPiece> chessBoard){
-        ArrayList<Coordinate> validNextMoves = new ArrayList<>();
-        Coordinate[] possibleNextMovesForKnight = {
+    private Coordinate[] getPossibleNextMoves(){
+        return new Coordinate[]{
                 coordinate.add(new Coordinate(2,1)),
                 coordinate.add(new Coordinate(2,-1)),
                 coordinate.add(new Coordinate(1,2)),
@@ -24,11 +24,16 @@ public class Knight extends ChessPiece {
                 coordinate.add(new Coordinate(-1,-2)),
                 coordinate.add(new Coordinate(-2,1)),
                 coordinate.add(new Coordinate(-2,-1))};
-        for (Coordinate coord : possibleNextMovesForKnight){
+    }
+
+    @Override
+    public ArrayList<Coordinate> getValidMoves(ArrayList<ChessPiece> chessBoard){
+        ArrayList<Coordinate> validNextMoves = new ArrayList<>();
+        for (Coordinate coord : getPossibleNextMoves()){
             if (isInBoard(coord)){
                 boolean ifPieceBlocked = false;
                 for(ChessPiece piece : chessBoard){
-                    if (piece.coordinate.equals(coord)){
+                    if (piece.coordinate.equal(coord)){
                         ifPieceBlocked = true;
                     }
                 }
@@ -41,8 +46,14 @@ public class Knight extends ChessPiece {
     }
 
     @Override
-    public List<Coordinate> getValidAttacks(ArrayList<ChessPiece> chessBoard) {
-        return null;
+    public ArrayList<Coordinate> getValidAttacks(Board chessBoard) {
+        ArrayList<Coordinate> result = new ArrayList<>();
+        for (Coordinate coord : getPossibleNextMoves()){
+            if (ifOpponentPieceInRange(coord, chessBoard.showBoard())) {
+                result.add(coord);
+            }
+        }
+        return result;
     }
 
     @Override

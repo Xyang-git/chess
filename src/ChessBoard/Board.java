@@ -1,6 +1,7 @@
 package ChessBoard;
-import Pieces.*;
 
+
+import Pieces.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,9 +43,9 @@ public class Board {
             new Pawn(new Coordinate(2,7),false, false),
             new Pawn(new Coordinate(2,8),false, false)));
 
-    public ChessPiece findPiecePosAtPosition(Coordinate coordinate){
+    public ChessPiece findPieceAtPosition(Coordinate coordinate){
         for (ChessPiece chessPiece : chessBoard){
-            if (chessPiece.coordinate.equals(coordinate)){
+            if (coordinate.equal(chessPiece.coordinate)){
                 return chessPiece;
             }
         }
@@ -102,7 +103,7 @@ public class Board {
 
     public void updateBoardAfterAttack(ChessPiece piece, Coordinate coordinate){
         for (ChessPiece chessPiece : chessBoard){
-            if (chessPiece.coordinate.equals(coordinate)){
+            if (chessPiece.coordinate.equal(coordinate)){
                 updateBoard(piece, coordinate);
                 chessBoard.remove(chessPiece);
                 break;

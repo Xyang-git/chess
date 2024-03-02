@@ -1,5 +1,6 @@
 package Pieces;
 
+import ChessBoard.Board;
 import ChessBoard.Coordinate;
 import PieceImageCache.RenderPieceImageCacheService;
 
@@ -20,8 +21,10 @@ public class Queen extends ChessPiece {
     }
 
     @Override
-    public List<Coordinate> getValidAttacks(ArrayList<ChessPiece> chessBoard) {
-        return null;
+    public ArrayList<Coordinate> getValidAttacks(Board chessBoard) {
+        ArrayList<Coordinate> result = new Bishop(coordinate, isWhite, hasEverMoved).getValidAttacks(chessBoard);
+        result.addAll(new Rook(coordinate, isWhite, hasEverMoved).getValidAttacks(chessBoard));
+        return result;
     }
 
     @Override
