@@ -21,7 +21,7 @@ public class Queen extends ChessPiece {
     }
 
     @Override
-    public ArrayList<Coordinate> getValidAttacks(Board chessBoard) {
+    public ArrayList<Coordinate> getValidAttacks(ArrayList<ChessPiece> chessBoard) {
         ArrayList<Coordinate> result = new Bishop(coordinate, isWhite, hasEverMoved).getValidAttacks(chessBoard);
         result.addAll(new Rook(coordinate, isWhite, hasEverMoved).getValidAttacks(chessBoard));
         return result;

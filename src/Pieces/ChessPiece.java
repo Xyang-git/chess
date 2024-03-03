@@ -22,7 +22,7 @@ public abstract class ChessPiece {
     }
 
     public abstract List<Coordinate> getValidMoves(ArrayList<ChessPiece> chessBoard);
-    public abstract ArrayList<Coordinate> getValidAttacks(Board chessBoard);
+    public abstract ArrayList<Coordinate> getValidAttacks(ArrayList<ChessPiece> chessBoard);
     public boolean isValidMove(Coordinate coordinate, ArrayList<ChessPiece> chessBoard){
         boolean isValid = false;
         for (Coordinate validMoves : getValidMoves(chessBoard)){
@@ -34,7 +34,7 @@ public abstract class ChessPiece {
         return isValid;
     }
 
-    public boolean isValidAttack(Coordinate coordinate, Board chessBoard){
+    public boolean isValidAttack(Coordinate coordinate, ArrayList<ChessPiece> chessBoard){
         boolean isValid = false;
         for (Coordinate validMoves : getValidAttacks(chessBoard)){
             if (validMoves.equal(coordinate)) {

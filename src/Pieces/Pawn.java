@@ -24,7 +24,7 @@ public class Pawn extends ChessPiece {
     }
 
     @Override
-    public ArrayList<Coordinate> getValidAttacks(Board chessBoard) {
+    public ArrayList<Coordinate> getValidAttacks(ArrayList<ChessPiece> chessBoard) {
         ArrayList<Coordinate> result = new ArrayList<>() {};
         Coordinate[] possibleAttackPos;
         if (isWhite) {
@@ -35,7 +35,7 @@ public class Pawn extends ChessPiece {
             coordinate.add(new Coordinate(1, -1))};
         }
         for (Coordinate coord : possibleAttackPos) {
-            if (ifOpponentPieceInRange(coord, chessBoard.showBoard())) {
+            if (ifOpponentPieceInRange(coord, chessBoard)) {
                 result.add(coord);
             }
         }

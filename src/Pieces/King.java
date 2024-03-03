@@ -31,8 +31,7 @@ public class King extends ChessPiece {
             if (isInBoard(coord)){
                 if(ifPathNotBlockedStraight(coord, chessBoard)
                         && ifPathNotBlockedDiagonal(coord, chessBoard)
-                        && !ifNextKingPosInAttackRange(coord, chessBoard)
-                ){
+                        && !ifNextKingPosInAttackRange(coord, chessBoard)){
                     validNextMoves.add(coord);
                 }
             }
@@ -41,10 +40,10 @@ public class King extends ChessPiece {
     }
 
     @Override
-    public ArrayList<Coordinate> getValidAttacks(Board chessBoard) {
+    public ArrayList<Coordinate> getValidAttacks(ArrayList<ChessPiece> chessBoard) {
         ArrayList<Coordinate> result = new ArrayList<>();
         for (Coordinate coord : getPossibleNextMoves()){
-            if (ifOpponentPieceInRange(coord, chessBoard.showBoard())){
+            if (ifOpponentPieceInRange(coord, chessBoard)){
                 //if (!ifPieceAtPosIsProtected(pos[0], pos[1], chessBoard)){
                 result.add(coord);
                 //}
@@ -54,30 +53,30 @@ public class King extends ChessPiece {
     }
 
     private boolean ifNextKingPosInAttackRange (Coordinate coord, ArrayList<ChessPiece> chessboard){
-//        chessboard.remove(piecePos);
-//        PiecePos newKingPos = new PiecePos(piecePos.pieceType(), row, column, true);
-//        chessboard.add(newKingPos);
-//        boolean result = false;
-//        for (PiecePos pos : chessboard){
-//            if (pos.pieceType().isWhitePiece(pos.pieceType()) != piecePos.pieceType().isWhitePiece(piecePos.pieceType())){
-//                if ((pos.pieceType() == PieceType.King_black || pos.pieceType() == PieceType.King_white)){
-//                    if (isInRange(row, pos.row()+1, pos.row()-1)
-//                            && isInRange(column, pos.column()-1, pos.column()+1)){
-//                        result = true;
-//                        break;
-//                    }
-//                }else{
-//                    ValidAttack validAttack = new ValidAttack();
-//                    if (validAttack.isValidAttack(pos, row, column, chessboard)){
-//                        result = true;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//        chessboard.remove(newKingPos);
-//        chessboard.add(piecePos);
-        return false;
+        ChessPiece newKingCoordinate = new King(coord, isWhite, true);
+        King currentKing = this;
+        chessboard.remove(currentKing);
+        chessboard.add(newKingCoordinate);
+        boolean result = false;
+        for (ChessPiece piece : chessboard){
+            if (piece.isWhite != isWhite){
+                if (piece.getClass() == King.class){
+                    if (isInRange(coordinate.row, piece.coordinate.row+1, piece.coordinate.row-1)
+                            && isInRange(coordinate.column, piece.coordinate.column-1, piece.coordinate.column+1)){
+                        result = true;
+                        break;
+                    }
+                }else{
+                    if (piece.isValidAttack(coord, chessboard)){
+                        result = true;
+                        break;
+                    }
+                }
+            }
+        }
+        chessboard.add(currentKing);
+        chessboard.remove(newKingCoordinate);
+        return result;
     }
 
     @Override

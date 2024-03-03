@@ -63,7 +63,7 @@ public class MyChessGame extends JPanel {
                                 if (piece.isWhite != white_turn){
                                     warnings = "Please select your own piece!";
                                 }else if (piece.getValidMoves(board.showBoard()).isEmpty()
-                                        && piece.getValidAttacks(board).isEmpty()){
+                                        && piece.getValidAttacks(board.showBoard()).isEmpty()){
                                     warnings = "There is no valid moves or attacks for the selected piece, please select again!";
                                 }
                                 else{
@@ -78,11 +78,11 @@ public class MyChessGame extends JPanel {
                                 }
                                 // Selected space is not accessible by current piece
                                 else if (!selectedPiece.isValidMove(selectedSpace, board.showBoard())
-                                        && !selectedPiece.isValidAttack(selectedSpace, board)) {
+                                        && !selectedPiece.isValidAttack(selectedSpace, board.showBoard())) {
                                     warnings = "Invalid move, please choose again!";
                                 }
                                 // Attack
-                                else if(selectedPiece.isValidAttack(selectedSpace, board)) {
+                                else if(selectedPiece.isValidAttack(selectedSpace, board.showBoard())) {
                                     board.updateBoardAfterAttack(selectedPiece, selectedSpace);
                                     white_turn = !white_turn;
                                     previousMove = new Coordinate[]{selectedPiece.coordinate, selectedSpace};
@@ -157,7 +157,7 @@ public class MyChessGame extends JPanel {
         // Show possible positions for the selected piece to attack
         g.setColor(Color.RED);
         if (selectedPiece != null ){
-            for (Coordinate c : selectedPiece.getValidAttacks(board)){
+            for (Coordinate c : selectedPiece.getValidAttacks(board.showBoard())){
                 g.drawRoundRect(c.column*pieceSize,c.row*pieceSize, pieceSize, pieceSize, 40, 40);
             }
         }

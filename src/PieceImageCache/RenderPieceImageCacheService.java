@@ -17,14 +17,6 @@ public class RenderPieceImageCacheService {
         if(!cache.containsValue(piece)){
             cache.put(piece, readPieceFromFile(piece));
         }
-        /*
-
-        if hashmap doesn't contain type:
-            hashmap.insert(type, readPieceFromFile(pieceType);
-        return hashmap.get(typpe)
-
-
-         */
         return cache.get(piece);
     }
     public Image readPieceFromFile(String piece){

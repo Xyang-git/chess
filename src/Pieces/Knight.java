@@ -46,10 +46,10 @@ public class Knight extends ChessPiece {
     }
 
     @Override
-    public ArrayList<Coordinate> getValidAttacks(Board chessBoard) {
+    public ArrayList<Coordinate> getValidAttacks(ArrayList<ChessPiece> chessBoard) {
         ArrayList<Coordinate> result = new ArrayList<>();
         for (Coordinate coord : getPossibleNextMoves()){
-            if (ifOpponentPieceInRange(coord, chessBoard.showBoard())) {
+            if (ifOpponentPieceInRange(coord, chessBoard)) {
                 result.add(coord);
             }
         }

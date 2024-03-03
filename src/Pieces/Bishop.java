@@ -40,12 +40,12 @@ public class Bishop extends ChessPiece {
     }
 
     @Override
-    public ArrayList<Coordinate> getValidAttacks(Board chessBoard) {
+    public ArrayList<Coordinate> getValidAttacks(ArrayList<ChessPiece> chessBoard) {
         ArrayList<Coordinate> result = new ArrayList<>();
-        for (ChessPiece pieceOnBoard : chessBoard.showBoard()){
+        for (ChessPiece pieceOnBoard : chessBoard){
             if (Math.abs(coordinate.row-pieceOnBoard.coordinate.row) == Math.abs(coordinate.column-pieceOnBoard.coordinate.column)
                     && pieceOnBoard.isWhite != isWhite
-                    && !ifPathBlockedDiagonalAttack(pieceOnBoard.coordinate, chessBoard.showBoard())){
+                    && !ifPathBlockedDiagonalAttack(pieceOnBoard.coordinate, chessBoard)){
                 result.add(pieceOnBoard.coordinate);
             }
         }
