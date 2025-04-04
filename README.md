@@ -10,6 +10,10 @@
 
 ## Introduction
 The `chess` repository is a Java-based application that allows users to play the game of chess. The application provides a graphical user interface (GUI) for an interactive and engaging experience. This project is suitable for both beginners and experienced players who want to enjoy a classic game of chess.
+<img width="929" alt="image" src="https://github.com/user-attachments/assets/8bc384fb-d88e-4c0b-8690-3f30a0587a8f" />
+<img width="929" alt="image" src="https://github.com/user-attachments/assets/078b474e-2e49-4320-a28d-0a6742eee65d" />
+
+
 
 ## Features
 - Interactive GUI for playing chess
