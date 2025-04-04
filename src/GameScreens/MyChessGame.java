@@ -83,16 +83,20 @@ public class MyChessGame extends JPanel {
                                 }
                                 // Attack
                                 else if(selectedPiece.isValidAttack(selectedSpace, board.showBoard())) {
+                                    previousMove = new Coordinate[]{
+                                            new Coordinate(selectedPiece.coordinate.row, selectedPiece.coordinate.column),
+                                            new Coordinate(selectedSpace.row, selectedSpace.column)};
                                     board.updateBoardAfterAttack(selectedPiece, selectedSpace);
                                     white_turn = !white_turn;
-                                    previousMove = new Coordinate[]{selectedPiece.coordinate, selectedSpace};
                                     selectedPiece = null;
                                 }
                                 // Move
                                 else{
+                                    previousMove = new Coordinate[]{
+                                            new Coordinate(selectedPiece.coordinate.row, selectedPiece.coordinate.column),
+                                            new Coordinate(selectedSpace.row, selectedSpace.column)};
                                     board.updateBoard(selectedPiece, selectedSpace);
                                     white_turn = !white_turn;
-                                    previousMove = new Coordinate[]{selectedPiece.coordinate, selectedSpace};
                                     selectedPiece = null;
                                 }
                             }
@@ -108,6 +112,7 @@ public class MyChessGame extends JPanel {
 
     // TODO: Make some transform function to avoid all teh multiplying by 100.
     // All rendering goes in here.
+    // draw a square at given coordinates of width and height
     public void drawSquareOnBoard(Graphics g, Coordinate coords, Color colour, int width, int height, int stroke){
         // TODO: Would also handle the size of the piece. (100 by 100)
         Graphics2D g2 = (Graphics2D) g;
@@ -117,6 +122,19 @@ public class MyChessGame extends JPanel {
                 width*pieceSize+2*(stroke-2), height*pieceSize+2*(stroke-2));
         g2.setStroke(new BasicStroke(2));
     }
+
+    // print a message box at coordinate x,y with a transparent square as background
+    public void printWarningWithTransparentSquare(Graphics g,double x, double y, double width, double height){
+        // TODO: Would also handle the size of the piece. (100 by 100)
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(0));
+        g2.setColor(new Color(0, 0, 0, 128));
+        g2.fillRect((int) (x*pieceSize), (int) (y*pieceSize),
+                (int) (width*pieceSize), (int) (height*pieceSize));
+        g2.setColor(Color.white);
+        g2.drawString(warnings, (int) ((x+1.5)*pieceSize), (int) ((y+0.4)*pieceSize));
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         // This will clear the screen.
@@ -151,27 +169,15 @@ public class MyChessGame extends JPanel {
         g.setColor(Color.GREEN);
         if (selectedPiece != null){
             for (Coordinate c : selectedPiece.getValidMoves(board.showBoard())){
-                g.drawRoundRect(c.column*pieceSize,c.row*pieceSize, pieceSize, pieceSize, 40, 40);
+                g.drawRoundRect(c.column*pieceSize,c.row*pieceSize, pieceSize, pieceSize, (int) (0.4*pieceSize), (int) (0.4*pieceSize));
             }
         }
         // Show possible positions for the selected piece to attack
         g.setColor(Color.RED);
         if (selectedPiece != null ){
             for (Coordinate c : selectedPiece.getValidAttacks(board.showBoard())){
-                g.drawRoundRect(c.column*pieceSize,c.row*pieceSize, pieceSize, pieceSize, 40, 40);
+                g.drawRoundRect(c.column*pieceSize,c.row*pieceSize, pieceSize, pieceSize, (int) (0.4*pieceSize), (int) (0.4*pieceSize));
             }
-        }
-
-        // Specify the current turn
-        g.setColor(Color.BLACK);
-        if (white_turn){
-            g.drawString("White to move", 450, 75);
-        }else{
-            g.drawString("Black to move", 450, 75);
-        }
-        if (warnings != null){
-            g.drawString(warnings, 450, 950);
-            warnings = null;
         }
 
         // Resets the colour to something else.
@@ -184,17 +190,37 @@ public class MyChessGame extends JPanel {
                     null);
         }
 
+
+        // TODO: fix this!
+        Font win_font = new Font("Snell Roundhand", Font.BOLD, pieceSize);
+        Font turn_font = new Font("Snell Roundhand", Font.BOLD, pieceSize/2);
+        Font warning_font = new Font("Snell Roundhand", Font.BOLD, pieceSize/3);
+        g.setFont(turn_font);
+        // Specify the current turn
+        g.setColor(Color.BLACK);
+        if (white_turn){
+            g.drawString("White to move", 450, 75);
+        }else{
+            g.drawString("Black to move", 450, 75);
+        }
+        if (warnings != null){
+            g.setFont(warning_font);
+            printWarningWithTransparentSquare(g, 1, 8.5, 8, 0.5);
+            warnings = null;
+        }
+
+        // when one wins
+        g.setFont(win_font);
         g.setColor(Color.red);
-        Font font = new Font("Snell Roundhand", Font.BOLD, 100);
-        g.setFont(font);
+
         if (board.whiteWins()){
-            g.drawString("White Wins!", 250, 500);
+            g.drawString("White Wins!", (int) (2.5*pieceSize), (int) (5*pieceSize));
         }
         if (board.blackWins()){
-            g.drawString("Black Wins!", 250, 500);
+            g.drawString("Black Wins!", (int) (2.5*pieceSize), (int) (5*pieceSize));
         }
         if (board.isStaleMate(white_turn)){
-            g.drawString("Stalemate!", 250, 500);
+            g.drawString("Stalemate!", (int) (2.5*pieceSize), (int) (5*pieceSize));
         }
 //        // Some fancy-ish graphics : ] (that'll only refresh on keypress) (need all the double / float casting for silly floating point precision reasons)
 //        float time = (float)((((double) System.currentTimeMillis()) / 4000.0) % 1.0);
